@@ -4,6 +4,8 @@ docker-compose up --build -d
 # generate artisan key and add to .env:
 docker exec -it snipeit php artisan key:generate --show
 
+# backup automate
+use backup-local.sh for automate backup via cron
 
 # in case key error: 500 Internal Server Error
 # check log first:
