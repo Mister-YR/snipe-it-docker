@@ -1,0 +1,37 @@
+version: "3.8"
+# sudo usermod -aG docker UserName
+# docker exec -it snipeit php artisan key:generate --show
+services:
+  snipeit-db:
+    image: mariadb:10.5
+    container_name: snipeit-db
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      - /docker-inventory/files/db/:/var/lib/mysql
+
+  snipeit:
+    build: .
+    container_name: snipeit
+    restart: unless-stopped
+    depends_on:
+      - snipeit-db
+    ports:
+      - "8089:80"
+    env_file:
+      - .env
+    user: "33:33"  # www-data (UID 33, GID 33)
+    volumes:
+      - /docker-inventory/files/uploads:/var/www/html/public/uploads
+      - /docker-inventory/files/backups:/var/www/html/storage/app/backups
+      - /docker-inventory/files/tmp:/var/www/html/storage/tmp
+      - /docker-inventory/files/oauth/oauth-private.key:/var/www/html/storage/oauth-private.key
+      - /docker-inventory/files/oauth/oauth-public.key:/var/www/html/storage/oauth-public.key
+      - /docker-inventory/files/sessions:/var/www/html/storage/framework/sessions
+# in case key error: 500 Internal Server Error
+# rm -rf /docker-inventory/files/oauth/oauth-public.key
+# rm -rf /docker-inventory/files/oauth/oauth-private.key
+# touch /docker-inventory/files/oauth/oauth-private.key
+# chown 33:33 /docker-inventory/files/oauth/oauth-private.key
+# chmod 600 /docker-inventory/files/oauth/oauth-private.key
